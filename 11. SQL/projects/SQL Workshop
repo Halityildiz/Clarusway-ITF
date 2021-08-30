@@ -10,7 +10,7 @@ FROM tracks;
 
 3. WRITE A QUERY THAT RETURNS THE NAME OF COMPOSERS OF EACH TRACK
 
-SELECT Composer
+SELECT DISTINCT Composer 
 FROM tracks;
 
 4. WRITE A QUERY THAT RETURNS UNIQUE ALBUMID, MEDIATYPEID FROM TRACKS TABLE
@@ -28,7 +28,7 @@ WHERE Composer = "Jorge Ben";
 
 SELECT *
 FROM invoices
-WHERE total >25;
+WHERE total > 25;
 
 7. WRITE A QUERY THAT RETURNS ALL INFO OF THE INVOICES OF WHICH TOTAL AMOUNT IS LESS THAN $15. JUST RETURN 5 ROWS
 
@@ -55,6 +55,12 @@ NOT IN ("Canada")
 ORDER BY total
 LIMIT 10;
 
+SELECT * 
+FROM invoices 
+WHERE NOT BillingCountry = 'CANADA' 
+ORDER BY Total ASC 
+LIMIT 10;
+
 10. WRITE A QUERY THAT RETURNS INVOICEID, CUSTOMERID AND TOTAL DOLLAR AMOUNT FOR EACH INVOICE. 
 THEN SORT THEM FIRST BY CUSTOMERID IN ASCENDING, THEN TOTAL DOLLAR AMOUNT IN DESCENDING ORDER.
 
@@ -69,12 +75,24 @@ FROM tracks
 WHERE name 
 LIKE "B%S";
 
+SELECT Name 
+FROM tracks 
+WHERE Name 
+LIKE 'B%' AND Name LIKE '%s';
+
 12. WRITE A QUERY THAT RETURNS THE NEWEST DATE AMONG THE INVOICE DATES BETWEEN 2008 AND 2011
 
 SELECT * 
 FROM invoices 
 WHERE InvoiceDate BETWEEN "2008-01-01" AND "2012-01-01" 
-ORDER BY InvoiceDate DESC;
+ORDER BY InvoiceDate DESC
+LIMIT 1;
+
+SELECT InvoiceDate 
+FROM invoices 
+WHERE InvoiceDate BETWEEN '2008-01-01' AND '2012-01-01' 
+ORDER BY InvoiceDate DESC 
+LIMIT 1;
 
 13. WRITE A QUERY THAT RETURNS THE FIRST AND LAST NAME OF THE CUSTOMERS WHO HAVE ORDERS FROM NORWAY AND BELGIUM
 
@@ -83,6 +101,11 @@ FROM customers
 WHERE Country IN ("Belgium", "Norway");
 
 14. WRITE A QUERY THAT RETURNS THE TRACK NAMES OF ‘ZAPPA’ 
+
+SELECT Composer, Name 
+FROM tracks 
+WHERE Composer 
+LIKE '%Zappa';
 
 SELECT *
 FROM tracks
@@ -104,6 +127,11 @@ FROM tracks;
 
 17. HOW MANY TRACKS DOES EACH ALBUM HAVE, DISPLAY ALBUMID AND NUMBER OF TRACKS SORTED FROM HIGHEST TO LOWEST
 
+SELECT AlbumId, COUNT(*) AS number_of_tracks 
+FROM tracks 
+GROUP BY AlbumId 
+ORDER BY number_of_tracks DESC;
+
 SELECT AlbumId, COUNT(TrackId)
 FROM tracks
 GROUP BY AlbumId
@@ -118,14 +146,37 @@ FROM tracks;
 
 19. WRITE A QUERY THAT RETURNS THE TRACKS HAVING DURATION LESS THAN THE AVERAGE DURATION
 
+SELECT * 
+FROM tracks 
+WHERE Milliseconds < 393599.212103911 
+
+SELECT * 
+FROM tracks 
+WHERE Milliseconds < ( 
+    SELECT AVG(Milliseconds) 
+    FROM tracks);
+
 SELECT TrackId, Milliseconds
 FROM tracks
 WHERE Milliseconds < (
-	SELECT avg(Milliseconds)
-	from tracks)
+    SELECT avg(Milliseconds)
+    from tracks)
 GROUP BY TrackId;
 
 20. WRITE A QUERY THAT RETURNS THE TOTAL NUMBER OF EACH COMPOSER’s TRACK.
+
+SELECT Composer, COUNT(*)
+FROM tracks
+GROUP BY Composer; 
+
+SELECT Composer, COUNT(Composer)
+FROM tracks
+GROUP BY Composer; 
+
+SELECT Composer, COUNT(Composer)
+FROM tracks
+WHERE Composer IS NOT NULL
+GROUP BY Composer;
 
 SELECT Composer, count(TrackId)
 FROM tracks
@@ -133,19 +184,28 @@ GROUP BY Composer;
 
 21. WRITE A QUERY THAT RETURNS THE GENRE OF EACH TRACK.
 
+SELECT tracks.Name, genres.Name
+FROM tracks
+JOIN genres ON tracks.GenreId = genres.GenreId; 
+
+SELECT t.Name, g.Name
+FROM tracks t
+JOIN genres g ON t.GenreId = g.GenreId;
+
 SELECT tracks.TrackId, tracks.name, genres.name
 FROM tracks 
 INNER JOIN genres ON tracks.GenreId = genres.GenreId
 GROUP BY TrackId;
 
-
 22. WRITE A QUERY THAT RETURNS THE ARTIST’s ALBUM INFO.
+
+SELECT * 
+FROM artists 
+LEFT JOIN albums ON albums.ArtistId = artists.ArtistId;
 
 SELECT artists.ArtistId, artists.Name, albums.Title
 FROM artists 
-INNER JOIN albums ON artists.ArtistId = albums.AlbumId
-GROUP BY artists.ArtistId;
-
+LEFT JOIN albums ON artists.ArtistId = albums.ArtistId;
 
 23. WRITE A QUERY THAT RETURNS THE MINIMUM DURATION OF THE TRACK IN EACH ALBUM. 
 DISPLAY ALBUMID, ALBUM TITLE AND DURATION OF THE TRACK. THEN SORT THEM FROM HIGHEST TO LOWEST
@@ -156,15 +216,21 @@ INNER JOIN albums ON tracks.AlbumId = albums.AlbumId
 GROUP BY tracks.AlbumId
 ORDER BY Milliseconds DESC;
 
+SELECT tracks.AlbumId, albums.Title, MIN(tracks.Milliseconds) AS min_duration 
+FROM tracks 
+JOIN albums ON tracks.AlbumId = albums.AlbumId 
+GROUP BY tracks.AlbumId, albums.Title 
+ORDER BY min_duration DESC;
+
 
 24. WRITE A QUERY THAT RETURNS ALBUMS WHOSE TOTAL DURATION IS HIGHER THAN 60 MIN. 
 DISPLAY ALBUM TITLE AND THEIR DURATIONS. THEN SORT THE RESULT FROM HIGHEST TO LOWEST
 
-SELECT tracks.AlbumId, albums.Title, tracks.Milliseconds
+SELECT tracks.AlbumId, albums.Title, SUM(tracks.Milliseconds) AS total_duration 
 FROM tracks 
-INNER JOIN albums ON tracks.AlbumId = albums.AlbumId
-WHERE tracks.Milliseconds > 360000
+JOIN albums ON tracks.AlbumId = albums.AlbumId
 GROUP BY tracks.AlbumId
+HAVING total_duration > 3600000
 ORDER BY Milliseconds DESC;
 
 25. WRITE A QUERY THAT RETURNS TRACKID, TRACK NAME AND ALBUMID INFO OF THE ALBUM 
@@ -175,5 +241,11 @@ FROM tracks
 INNER JOIN albums ON tracks.AlbumId = albums.AlbumId
 WHERE albums.Title IN ("Prenda Minha", "Heart of the Night", "Out Of Exile");
 
+SELECT Trackid, Name, Albumid 
+FROM tracks 
+WHERE albumid IN ( 
+    SELECT AlbumId 
+    FROM albums 
+    WHERE Title IN ('Prenda Minha', 'Heart of the Night', 'Out Of Exile'));
 
 
