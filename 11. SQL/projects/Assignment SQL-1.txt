@@ -51,6 +51,13 @@ WHERE Name LIKE "B%s";
 
 7. Use the invoices table to find all information regarding invoices whose billing address is USA or Germany or Norway or Canada and invoice date is at any point in 2010, sorted from newest to oldest.
 
+SELECT * 
+FROM invoices 
+WHERE BillingCountry IN ("USA", "Germany", "Norway", "Canada") 
+AND InvoiceDate BETWEEN "2010-01-01" AND "2011-01-01" 
+ORDER BY InvoiceDate DESC;
+
+SELECT * 
 FROM invoices
 WHERE InvoiceDate BETWEEN '2010-01-01' AND '2010-12-31' AND BillingCountry = 'USA'
 OR

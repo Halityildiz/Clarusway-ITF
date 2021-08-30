@@ -40,3 +40,9 @@ FROM
 	GROUP BY albums.AlbumId
 	ORDER BY Total_duration DESC)
 WHERE Total_duration >420000;
+
+SELECT a.Title AS Album_Title, SUM(t.Milliseconds) AS Duration
+  FROM albums a INNER JOIN tracks t ON a.AlbumId = t.AlbumId
+  GROUP BY Album_Title
+  HAVING Duration > 4200000
+  ORDER BY Duration DESC;
